@@ -39,17 +39,17 @@ for arg in "$@"; do
       CMD="${CMD}_$arg"
     fi
   else
-    echo "Usage: run_build_scc.sh with argument of ${OPT[@]}"
+    echo "Usage: run_build.sh with argument of ${OPT[@]} or ${TGT[@]}, the all and dbgrel argument is default"
     exit
   fi
 done
 
 echo "CMD is $CMD"
 
+##### scc
 CMAKE_COMMON_SETTINGS="-DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DBUILD_SHARED_LIBS=OFF -DCMAKE_CXX_STANDARD=${CXX_STD} -DCMAKE_INSTALL_LIBDIR=lib"
-SCC_SRC=${ICSC_HOME}/scc
+SCC_SRC=sc_libs/scc
 SCC_BUILD=${BUILD_DIR}/scc
-
 function build_scc {
     #-DBoost_NO_SYSTEM_PATHS=TRUE -DBOOST_ROOT=${SCC_INSTALL} -DBoost_NO_WARN_NEW_VERSIONS=ON -DSCC_LIB_ONLY=ON || exit 1
     echo "cmake -S ${SCC_SRC} -B build/scc -Wno-dev ${CMAKE_COMMON_SETTINGS} -DENABLE_CONAN=OFF "
@@ -62,6 +62,7 @@ function clean_scc {
   rm -rf ${SCC_BUILD}
 }
 
+##### sc_example
 CMAKE_COMMON_SETTINGS="-DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_CXX_STANDARD=${CXX_STD} -DCMAKE_INSTALL_LIBDIR=lib"
 SC_EXAMPLE_SRC=${ICSC_HOME}
 SC_EXAMPLE_BUILD=${BUILD_DIR}/sc_example
@@ -73,6 +74,7 @@ function clean_scc {
   rm -rf ${SC_EXAMPLE_BUILD}
 }
 
+##### icsc
 function build_icsc {
   echo "running build_icsc"
   ${ICSC_HOME}/icsc/install_icsc.sh
