@@ -13,3 +13,6 @@
 [submodule "sc_libs/noxim"]
 	path = sc_libs/noxim
 	url = git@github.com:chisuhua/noxim.git
+[submodule "sc_libs/scc"]
+	path = sc_libs/scc
+	url = git@github.com:chisuhua/SystemC-Components.git
