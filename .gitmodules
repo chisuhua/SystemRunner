@@ -10,3 +10,9 @@
 [submodule "external/nose"]
 	path = external/nose
 	url = git@github.com:chisuhua/nose.git
+[submodule "sc_libs/DRAMSys"]
+	path = sc_libs/DRAMSys
+	url = git@github.com:chisuhua/DRAMSys.git
+[submodule "sc_libs/noxim"]
+	path = sc_libs/noxim
+	url = git@github.com:chisuhua/noxim.git
