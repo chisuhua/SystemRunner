@@ -17,9 +17,9 @@ DISTRO=$(lsb_release -i -s)
 BUILD_DIR=build
 
 OPT=(dbg rel dbgrel clean)
-TGT=(all icsc scc sc_example)
+TGT=(all icsc scc sc_example noxim)
 
-[ -z "${BUILD_TYPE}" ] && BUILD_TYPE=RelWithDebInfo
+[ -z "${BUILD_TYPE}" ] && BUILD_TYPE=Debug
 
 CMD="build"
 
@@ -32,6 +32,8 @@ for arg in "$@"; do
         BUILD_TYPE=Debug
       elif [ $arg == rel ]; then
         BUILD_TYPE=Release
+      elif [ $arg == rel ]; then
+        BUILD_TYPE=RelWithDebInfo
       fi
     fi
   elif echo "${TGT[@]}" | grep -wq "$arg"; then
@@ -45,16 +47,14 @@ for arg in "$@"; do
 done
 
 echo "CMD is $CMD"
+CMAKE_COMMON="-DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=${BUILD_DIR} -DCMAKE_CXX_STANDARD=${CXX_STD} -DCMAKE_INSTALL_LIBDIR=lib"
 
 ##### scc
-CMAKE_COMMON_SETTINGS="-DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DBUILD_SHARED_LIBS=OFF -DCMAKE_CXX_STANDARD=${CXX_STD} -DCMAKE_INSTALL_LIBDIR=lib"
+SCC_CMAKE_SETTING="${CMAKE_COMMON} -DBUILD_SHARED_LIBS=OFF"
 SCC_SRC=sc_libs/scc
 SCC_BUILD=${BUILD_DIR}/scc
 function build_scc {
-    #-DBoost_NO_SYSTEM_PATHS=TRUE -DBOOST_ROOT=${SCC_INSTALL} -DBoost_NO_WARN_NEW_VERSIONS=ON -DSCC_LIB_ONLY=ON || exit 1
-    echo "cmake -S ${SCC_SRC} -B build/scc -Wno-dev ${CMAKE_COMMON_SETTINGS} -DENABLE_CONAN=OFF "
-    echo "    -DBoost_NO_WARN_NEW_VERSIONS=ON -DSCC_LIB_ONLY=OFF"
-    cmake -S ${SCC_SRC} -B ${SCC_BUILD} -Wno-dev ${CMAKE_COMMON_SETTINGS} -DENABLE_CONAN=OFF \
+    cmake -S ${SCC_SRC} -B ${SCC_BUILD} -Wno-dev ${SCC_CMAKE_SETTING} -DENABLE_CONAN=OFF \
         -DBoost_NO_WARN_NEW_VERSIONS=ON -DSCC_LIB_ONLY=OFF
     cmake --build ${SCC_BUILD} --target install -j 2
 }
@@ -62,12 +62,23 @@ function clean_scc {
   rm -rf ${SCC_BUILD}
 }
 
+##### noxim
+NOXIM_SRC=sc_libs/noxim
+NOXIM_BUILD=${BUILD_DIR}/noxim
+function build_noxim {
+  cmake -S ${NOXIM_SRC} -B ${NOXIM_BUILD} ${CMAKE_COMMON}
+  cmake --build ${NOXIM_BUILD} -j 2
+}
+function clean_noxim {
+  rm -rf ${NOXIM_BUILD}
+}
+
+
 ##### sc_example
-CMAKE_COMMON_SETTINGS="-DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_CXX_STANDARD=${CXX_STD} -DCMAKE_INSTALL_LIBDIR=lib"
 SC_EXAMPLE_SRC=${ICSC_HOME}
 SC_EXAMPLE_BUILD=${BUILD_DIR}/sc_example
 function build_sc_example {
-    cmake -S ${SC_EXAMPLE_SRC} -B ${SCC_EXAMPLE_BUILD} -Wno-dev ${CMAKE_COMMON_SETTINGS}
+    cmake -S ${SC_EXAMPLE_SRC} -B ${SCC_EXAMPLE_BUILD} -Wno-dev ${CMAKE_COMMON}
     cmake --build ${SC_EXAMPLE_BUILD} --target install -j 2
 }
 function clean_scc {
